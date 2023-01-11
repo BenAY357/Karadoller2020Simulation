@@ -1,0 +1,463 @@
+---
+title: "Karadoller 2020 Simulation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment="")
+```
+
+
+```{r echo=FALSE, eval = T, include=F}
+# This script uses an original package called Karadoller2020. The code in this chunk installs it. 
+
+# The functions can be found in Karadoller2020/R/
+# The data can be found in Karadoller2020/inst/extdata
+
+install <- F # "install <- FALSE" or delete this chunk once the package is installed. 
+if (install){
+  
+library(installr)
+# uninstall package
+# uninstall.packages("Karadoller2020", lib = "C:/Users/benay/AppData/Local/R/win-library/4.2")
+
+# set path to file location. The path below was mine. 
+install.packages("C:/Users/benay/Documents/UCL/3rd year/3rd year psychology/Advanced Stastistical Methods/Coursework XHBF3/Karadoller2020", repos = NULL, type="source")
+}
+```
+
+
+```{r include = FALSE}
+# Karadoller2020 is documented so you can use the help panel or ?func_name for guidance. Most of the my comments are in the documentation and function source files to avoid clutter. 
+
+library("Karadoller2020") # also loads all the packages we need: tidyverse, broom.mixed, lme4 etc
+options(dplyr.summarise.inform = FALSE)
+options(lme4.glmer.inform = FALSE)
+```
+
+
+## 1. Journal article
+
+The paper that I will base my simulation on is: 
+
+<p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Karadöller, D. Z., Sümer, B., & Özyürek, A. (2021). Effects and non-effects of late language exposure on spatial language development: Evidence from deaf adults and children. *Language Learning and Development*, *17*(1), 1-25.
+</p>
+
+I confirm this is a peer reviewed article about a psychology topic.
+
+I confirm I have attached an annotated pdf to this submission.
+
+## 2. Background information
+
+<p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Late sign language exposure in deaf children is a common but understudied issue. Little is known about sign language development soon after exposure and if late exposure impedes expressions of locative relations. Hence, the current study compared late and native, child and adult signers’ propensity to produce relational lexemes (signs that convey the spatial relationship between two items without any information about their shape) when describing view dependent and view independent spatial relationships between two items. View dependent relationships are when the spatial relationship between the two items is dependent on the viewer’s point of view (e.g., left or right). View independent relationships are when the spatial relationship between the two items is not dependent on the viewer’s point of view (e.g., under, on or in).
+</p>
+
+## 3. Research Question / Hypotheses
+
+**The question I have chosen to simulate is**: 
+
+What is the effect of delayed language input and age on the use of relational lexemes in the domain of locative spatial relations?
+
+**Simplifications I made to this question are**: 
+
+I removed the random effect of item. The paper did not make it clear what it referred to. 
+
+**Hypotheses relating to this question are**: 
+
+
+* H1: Children will be less likely to produce relational lexemes than adults. (age)
+
+* H2: Late signers will be less likely to produce relational lexemes than native signers. (language)
+
+* H3: Relational lexemes will be less likely to be produced during view dependent trials than during view independent trials. (viewpoint)
+
+* H4: Late language  acquisition will impact children and adults' likelihood to produce relational lexemes equally. (age:language)
+
+* H5: Adults will only be more likely to use  relational lexemes to describe dependent viewpoints. (Children will pick up independent viewpoints as fast as adult). (age:viewpoint)
+
+* H6: Late signers will be less like likely to produce relational lexemes for view dependent spatial relations than for view independent spatial relations compared to native signers. (language:viewpoint)
+
+* H7: Late language acquisition will impact the likelihood to produce relational lexemes for independent and dependent viewpoints similarly for adults and children. (age:language:viewpoint)
+
+
+## 4. Variables
+
+### The dependent variable
+
+**Name**: 
+<p style="line-height: 2em;">
+Presence of spatial description by relational lexeme production- whether participants produce a relational lexeme to describe the relationship between the items for a given trial. 
+</p>
+**Type**: Binary
+
+**Values it can take**: 
+
+* 0 = relational lexeme absent, 
+
+* 1 = relational lexeme present.
+
+**Descriptive statistics**: 
+
+See Table 1 for the descriptive statistics. This was taken from Table 3 in the paper. 
+
+<b>Table 1</b>
+
+<i>Proportion of trials with relational lexemes across age group, language status and viewpoint.</i> 
+
+```{r echo = FALSE}
+Karadoller2020::get_desc_RL(kable_format = TRUE)
+```
+
+### The independent variables
+
+<p style="line-height: 2em;">
+All the independent variables were deviation coded. However, the references categories were not included so I guessed them using the descriptive statistics and hypothesis. This ended up matching the order the categories were listed in table 5. In other words, the category to the right of the versus was always the reference category (children, independent, late) so I think I was correct.
+</p>
+
+### The independent variable (1)
+
+**Name**: Age group
+
+**Type**: Categorical between factor
+
+**Values it can take**: 
+
+* Child: 7-10 years old (reference category).
+
+* Adult: 18+. 
+
+* Age group was deviation coded. Hence, child = -0.5 and adult = 0.5. 
+
+**Descriptive statistics**: Roughly half the sample were children. The coefficient for age group (vs young) was 0.785. Hence, adults were more likely to produce relational lexemes to describe spatial relationships. 
+
+### The independent variable (2)
+
+**Name**: Language status
+
+**Type**: Categorical between factor
+
+**Values it can take**: 
+
+* Native: Exposure to sign language from birth. 
+
+* Late: Exposure to sign language at primary school (reference category). All the late child signers had been exposed to sign language for two years. 
+
+* Language status was deviation coded. Hence late = -0.5 and native = 0.5.
+
+**Descriptive statistics**: Roughly half the sample were native signers. The coefficient for language status (vs language) was 0.536 (ns).
+
+
+### The independent variable (2)
+
+**Name**: Viewpoint
+
+**Type**: Categorical within factor
+
+**Values it can take**: 
+
+* Independent: Spatial relation between the items in the trial is not dependent on the viewer's viewpoint (e.g. IN, UNDER or ON) (reference category). 
+
+* Dependent: Spatial relation between the items in the trial is dependent on the viewer's viewpoint (e.g. LEFT or RIGHT). 
+
+* Viewpoint was deviation coded. Hence independent = -0.5 and dependent = 0.5.
+
+**Descriptive statistics**: Participants saw 15 trials. Looking at the appendix, nine were view dependent and 6 were view independent. The coefficient for viewpoint was -0.084 (ns).
+
+### Random effects (if applicable)
+
+**Structure**: 
+
+<p style="line-height: 2em;"> 
+Only random intercepts of subject were included. This assumes that participants vary in their likelihood to produce a relational lexeme but this doesn’t interact with  age group, language status or viewpoint.
+</p>
+**Descriptive statistics**: 
+<p style="line-height: 2em;"> 
+Random effects or residual variance information were not provided. Therefore, I used trial and error and the SEs for the fixed effects to help approximate the RE of subject. I settled on 0.9 as the RE of subject (tau_0). 
+</p>
+## 5. Study Design
+
+**Study design**: The study had an experimental design with two between subject factors of age group and language status, and a within subjects factor of viewpoint. The study had 44 participants. Each person did 36 trials. However, only 15 of those trials were included in the study. Nine of those trials were view dependent and six were view dependent. Only trials with the correct spatial encoding were used in the final model. 
+
+**Model formula**: glmer(RL ~ age_dev * language_dev * viewpoint_dev + (1|subject), family =  "binomial", control = lmerControl(optimizer="bobyqa"))
+
+(Taken from Table 5 in the paper)
+
+## 6. Simulation code for 1 dataset
+
+```{r eval = F}
+# First we need to simulate the likelihood that the participants got the spatial encoding correct. 
+
+# get trial and group parameters. 
+trial_params <- Karadoller2020::get_trial_params() 
+n_trials_param <- as.numeric(trial_params[1,2])
+group_params <- Karadoller2020::get_group_params() # the likelihood each group gets the correct spatial encoding can be found in Table 1 in the paper. 
+
+# simulate spatial encodings responses
+spatial_encoding <- Karadoller2020::sim_spatial_encoding(group_params, trial_params,
+                                # Pick reference categories  
+                                age_ref = "child",
+                                 lang_ref = "late",
+                                 viewpoint_ref = "independent") 
+
+ # filter out all incorrect responses
+ all_correct <- spatial_encoding %>% filter(spatial_encoding == 1)
+
+# add model parameters to data frame
+mod_params <- Karadoller2020::get_RL_model_estimates() # get model estimates
+
+sim_data <- all_correct %>% Karadoller2020::add_estimate_params(mod_params) %>% # add model estimates to data frame
+  Karadoller2020::add_subj_rand_eff(tau_0 = 0.9) # add subject random effect to data frame. 
+
+
+# work out log odds
+sim_data <- sim_data %>%
+  mutate(logodds = b0 + u0p + # grand intercept and subject random effect
+           # coefficients
+           b1*age_dev +
+           b2*language_dev +
+           b3*viewpoint_dev+
+           b4*age_dev*language_dev+
+           b5*age_dev*viewpoint_dev+
+           b6*language_dev*viewpoint_dev+
+           b7*age_dev*language_dev*viewpoint_dev) %>% 
+mutate(probability = logistic(logodds)) %>% # work out probability
+    mutate(RL = rbinom(n = nrow(sim_data), # simulate RL. 
+                       size = 1,
+                       prob = probability))
+
+```
+
+
+## 7. Code to check simulation has worked
+
+### Descriptives
+
+```{r eval = T}
+# Load previously simulated data set to save time when knitting. 
+sim_data <- Karadoller2020::get_csv("prev_sim_data.csv") # ?prev_sim_data, one of the very few simulations with the same significant fixed effects as the original study.
+```
+
+**Number of Participants in each Group:**
+
+```{r eval}
+# check that the number of participants in each group (age group and language status) are the values we expect. 
+
+sim_participants_per_group <- sim_data %>% distinct(subject, .keep_all = TRUE) %>% # get the first row for each subject
+group_by(language, age) %>% 
+  count()
+kable(sim_participants_per_group, align = "c") %>% kable_styling()
+```
+
+**Probability of Getting the Spatial Encoding Correct:**
+
+```{r}
+# check that the probability of getting a correct spatial encoding by group is correct
+
+group_params <- Karadoller2020::get_group_params()
+
+Karadoller2020::check_spatial_encodings(group_parameters = group_params, sim_df = sim_data, formattable = TRUE) 
+```
+
+**Descriptive statistics (mean/sd):**
+
+```{r}
+# check that the descriptive stats for the proportion of RL use of the original and simulated data sets are similar.  
+
+orig_desc <- get_desc_RL()
+
+check_RL_desc(orig = orig_desc, sim = sim_data)
+```
+
+
+**Replication of the Proportion of RL Use Graph in Figure 3**
+
+```{r warning=F}
+# Replicate proportion of RL use graph in figure 3. 
+# The data's underlying distribution changes a lot between simulations even though the summary stats remain roughly the same. 
+
+Karadoller2020::RL_violin_plot(sim_data)
+```
+
+
+### Model outputs
+
+```{r warning = F}
+
+
+sim_mod <- glmer(RL ~ age_dev * language_dev * viewpoint_dev + (1|subject),
+      family =  "binomial",
+      data = sim_data,
+      control = glmerControl(optimizer="bobyqa"))
+
+# Most simulations do not find the same significant results as the study. 
+# The study was very under powered (as we shall see later).
+
+
+Karadoller2020::fixed_effects_tab(sim_mod) # create table of fixed effects
+```
+Significance codes: *** 0.001, ** 0.01, * 0.05
+
+
+## 8. Simulation code for power analysis
+
+**Any differences to original experiment**: No further differences. 
+
+**Alpha level**: 0.05
+
+**Effect of interest**: Main effect of age
+
+```{r eval = F, warning=FALSE}
+# the model fails to converge a few times. This is most likely due to the large number of non-significant fixed effects. The authors entertained the idea of dropping the non-significant effects from the model but eventually prioritised completeness over parsimony.
+
+# Multiple power analysis revealed that the study was under powered. 
+
+power_table <- Karadoller2020::sim_power_table(n = 10, alpha = 0.05) # simulate table with model outputs 100 times. Takes a long time.
+age_power <- power_table %>% Karadoller2020::power_analysis(effect_of_interest = "age_dev") # pick effect of interest for the power analysis.
+power_table
+age_power
+```
+
+```{r eval = T}
+# Load previously simulated power table to save time. 
+
+power_table <- Karadoller2020::get_csv("prev_sim_power_tab.csv") # ?prev_sim_power_tab
+
+age_power <- power_table %>% Karadoller2020::power_analysis(effect_of_interest = "age_dev")
+
+```
+
+```{r eval = F, echo = F}
+# Power of the other significant main effects if you are interested
+
+age_lang <- power_table %>% Karadoller2020::power_analysis("age_dev:language_dev")
+age_viewpoint <- power_table %>% Karadoller2020::power_analysis("age_dev:viewpoint_dev")
+```
+
+
+Using this simulated dataset, the power to detect a significant effect of age was `r age_power * 100`% assuming the true effect was 0.785 (in log odds).
+
+## 9. Sensitivity analysis
+
+**Description of parameter(s) that were changed for this part**: Number of participants (40 to 140 in intervals of 20) and the fixed effect of age (0.3 to 0.9 in intervals of 0.1). 
+
+**Check that the parameter changes work**
+
+We should see 60 participants with "b1" = 90.
+
+```{r}
+# sim_whole uses sim_df and sim_calc so we need to check if sim_df(sensitivity_analysis = TRUE, ...) changes the correct parameters. This is also tested in "sim_df"'s documentation.  
+
+check_parameter_change  <- Karadoller2020::sim_df(sensitivity_analysis = TRUE,
+                         change_coeff = "b1", # change "b1". 
+                         change_coeff_value = 90, # pick a high number to make the change clearer. 
+                         n_participants = 60) # must be a multiple of 4. 
+
+check_parameter_change <-  check_parameter_change %>% 
+  select(subject:b2) %>% # can't fit the entire data frame in the knitted file 
+  Karadoller2020::get_head_tail(n_head = 4, n_tail = 4) # get first and last 4 rows. 
+
+make_red <- formatter("span", style = x ~ style(color = "#ce180d"))
+
+formattable(check_parameter_change,list(`subject` = make_red, # highlight subject and b1
+                                          `b1` = make_red)
+            )
+```
+
+**Run the simulations**
+
+```{r eval = F}
+# The final reflections explain why this is not in the Karadoller package. 
+library(furrr)
+library(future)
+library(tictoc)
+tic() # time how long the simulations takes. 
+
+n_simulations <- 100 # do 100 simulations
+sample <- seq(from = 40, to = 140, by = 20) # change the sample size 
+age_coef <- seq(from  = 0.3, to = 0.9, by = 0.1) # change the effect size
+powercurve <- crossing(sample, age_coef, 1:n_simulations) 
+
+plan(multisession, # set up parallel processing. 
+    workers = 16) # all the available cores (availableCores()) on my laptop. 
+
+powercurve_unnest <- powercurve %>%
+  mutate(result = future_map2(
+                              .x = sample, .y = age_coef, # need to specify variables as sim_whole has more than 2 arguments
+                             .f =  ~sim_whole(sensitivity_analysis = TRUE,
+                                                        n_participants = .x,
+                                                         change_coeff = "b1", # age coefficient
+                                                         change_coeff_value = .y,
+                                              effect_of_interest = "age_dev" # change_coeff and effect_of_interest should match. 
+                                                   )))
+powercurve <- powercurve_unnest %>% unnest(result)
+
+powercurve <- powercurve %>%
+  mutate(sig=p.value<.05)
+
+sensitivity_tab <- powercurve %>% group_by(sample, age_coef) %>%
+  summarise(power=mean(sig))
+
+sensitivity_tab
+toc() 
+
+
+# 16 cores takes approximately 571.63 seconds to do 100 simulations. map2() takes approximately 413.25 seconds to do 10 simulations. Hence, parallel processing made my simulation approximately 7.2x faster: (413.25*10)/571.63.
+
+```
+
+
+**Results of the sensitivity analysis**:
+
+```{r eval = T}
+# Load previously simulated sensitivity table to save time when knitting. 
+sensitivity_tab <- Karadoller2020::get_csv("prev_sim_sensitivity_tab.csv") 
+
+```
+
+```{r}
+# create graph
+
+orig_sample_size <- 44
+
+# Plot graph
+
+ggplot(sensitivity_tab, aes(x = sample, y = power, colour = as.factor(age_coef))) + 
+geom_point() + 
+  geom_line() +
+  theme_minimal() +
+  geom_hline(yintercept=.8, linetype=2) + # display beta (0.8) threshold.
+  scale_x_continuous(limits = c(40, 140), breaks = seq(40, 140, by = 20)) + # set scale for x-axis
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = .25)) + # set scale for y-axis
+  
+   labs(color = "Effect Size", # rename labels
+        x = "sample size")+
+  # segment lines marking the original parameters
+ geom_segment(aes(x = orig_sample_size, y = 0, xend = orig_sample_size, yend = age_power), color = "black") +
+ geom_segment(aes(x = 40, y = age_power, xend = orig_sample_size, yend = age_power), color = "black") +
+  ggtitle('Power to detect an effect of age group for a range of effect and sample sizes')
+```
+ <p style="line-height: 2em;"> 
+ *Note.* The segment lines mark the original power (`r age_power`) (assuming a true effect size of 0.785) and sample size (*N* = `r orig_sample_size`). We can see that the original study was under powered. The dotted line marks the beta value (0.8). 
+</p>
+
+
+## 10. Final reflections
+
+ <p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;There were a few difficult things with this simulation. First, there were the interactions. Interpreting the three-way interaction and finding the formula for it was particularly challenging. Working out the hypotheses for the interactions was also difficult, as they were not explicitly stated at the end of the introduction. Getting the correct reference categories for the deviation coding was also tricky. I had to read the introduction and results many times to figure out the most likely reference categories.
+</p>
+ <p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running the sensitivity analysis was also challenging. After doing the power analysis, I realised that I needed the furrr package because an ambitious sensitivity analysis would take too long without parallel processing. I spent hours troubleshooting the package, and I still do not fully understand what the problem was or why it works now. Therefore, I decided not to include the sensitivity analysis in the Karadoller2020 package in case it broke it.
+</p>
+
+<p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Developing the package was an interesting challenge as I had to teach myself everything. Figuring out how to include data in my package was particularly hard.  I tried to compress my data into.rda files and import them with data() like Laavans' Holzinger and Swineford datasets, but it didn't work, so I adapted and used csv files. The downside to the csv solution is that it makes my package larger and thus take longer to load. I also had to create an extra function to retrieve the data. Documenting the data sets was also a challenge because I could not get roxygen2 to generate the .Rd files for me. 
+</p>
+
+<center>**References**</center>
+
+<p style="line-height: 2em;"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Karadöller, D. Z., Sümer, B., & Özyürek, A. (2021). Effects and non-effects of late language exposure on spatial language development: Evidence from deaf adults and children. *Language Learning and Development*, *17*(1), 1-25. https://doi.org/10.1080/15475441.2020.1823846
+</p>
